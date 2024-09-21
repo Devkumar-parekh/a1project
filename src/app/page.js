@@ -1,31 +1,99 @@
+"use client";
 import Image from "next/image";
 import styles from "./page.module.css";
+import { useState } from "react";
+import axios from "axios";
+
+const InputText = (props) => {
+  return (
+    <input
+      type={props?.type || "text"}
+      name={props?.name}
+      value={props?.value || ""}
+      onChange={props.onChange}
+      style={{
+        borderRadius: "5px",
+        margin: "3px",
+        padding: "5px",
+        fontSize: "16px",
+      }}
+      placeholder={props.placeholder}
+    />
+  );
+};
 
 export default function Home() {
+  const [formdata, setFormdata] = useState({
+    api_key: "",
+    client_code: "",
+    password: "",
+    totp: "",
+  });
+  const [response, setResponse] = useState("");
+  const handleFormdata = (e) => {
+    let key = e.target.name;
+    let value = e.target.value;
+    setFormdata((prev) => {
+      return { ...prev, [key]: value };
+    });
+  };
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <Image
+        {/* <Image
           className={styles.logo}
           src="https://nextjs.org/icons/next.svg"
           alt="Next.js logo"
           width={180}
           height={38}
           priority
+        /> */}
+        <h1 style={{ textAlign: "center" }}>
+          <code>A1PROJECT</code>
+        </h1>
+        {/* <ul>
+          <li>Everything on fingertip</li>
+        </ul> */}
+        <hr />
+        <InputText
+          placeholder={"api_key"}
+          name={"api_key"}
+          value={formdata?.api_key}
+          onChange={handleFormdata}
         />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.js</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
+        <InputText
+          placeholder={"client_code"}
+          name={"client_code"}
+          value={formdata?.client_code}
+          onChange={handleFormdata}
+        />
+        <InputText
+          type={"password"}
+          placeholder={"password"}
+          name={"password"}
+          value={formdata?.password}
+          onChange={handleFormdata}
+        />
+        <InputText
+          type={"password"}
+          placeholder={"totp"}
+          name={"totp"}
+          value={formdata?.totp}
+          onChange={handleFormdata}
+        />
+        <hr />
         <div className={styles.ctas}>
           <a
             className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
+            href=""
             rel="noopener noreferrer"
+            onClick={async (e) => {
+              e.preventDefault();
+              setResponse("");
+              const res = await axios.post(`/api/login`, formdata);
+              console.log(res);
+              if (res) setResponse(JSON.stringify(res?.data));
+            }}
           >
             <Image
               className={styles.logo}
@@ -34,7 +102,7 @@ export default function Home() {
               width={20}
               height={20}
             />
-            Deploy now
+            Click To Sign In
           </a>
           <a
             href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
@@ -42,26 +110,30 @@ export default function Home() {
             rel="noopener noreferrer"
             className={styles.secondary}
           >
-            Read our docs
+            Home
           </a>
         </div>
       </main>
       <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
+        {response?.length > 0 && (
+          <div
+            onClick={(e) => {
+              e.preventDefault();
+            }}
+          >
+            <span>
+              <Image
+                aria-hidden
+                src="https://nextjs.org/icons/file.svg"
+                alt="File icon"
+                width={16}
+                height={16}
+              />
+            </span>
+            <span>{response || ""}</span>
+          </div>
+        )}
+        {/* <a
           href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
           target="_blank"
           rel="noopener noreferrer"
@@ -88,7 +160,7 @@ export default function Home() {
             height={16}
           />
           Go to nextjs.org →
-        </a>
+        </a> */}
       </footer>
     </div>
   );
