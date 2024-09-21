@@ -28,6 +28,7 @@ export default function Home() {
     client_code: "",
     password: "",
     totp: "",
+    type: "",
   });
   const [response, setResponse] = useState("");
   const handleFormdata = (e) => {
@@ -79,6 +80,13 @@ export default function Home() {
           placeholder={"totp"}
           name={"totp"}
           value={formdata?.totp}
+          onChange={handleFormdata}
+        />
+        <InputText
+          type={"number"}
+          placeholder={"type"}
+          name={"type"}
+          value={formdata?.type}
           onChange={handleFormdata}
         />
         <hr />

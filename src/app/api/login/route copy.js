@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { SmartAPI } from "smartapi-javascript";
-import axios from "axios";
 export const dynamic = "force-dynamic"; // defaults to auto;
 
 export const POST = async (req, res) => {
@@ -14,34 +13,7 @@ export const POST = async (req, res) => {
     //   totp: process.env.TOTP,
     // });
     let res = "";
-    if (Number(payload?.type) === 1) {
-      var data = {
-        state: payload.api_key,
-        clientcode: payload.client_code,
-        password: payload.password,
-        totp: payload.totp,
-      };
-      var config = {
-        method: "post",
-        url: "https://apiconnect.angelone.in//rest/auth/angelbroking/user/v1/loginByPassword",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          "X-UserType": "USER",
-          "X-SourceID": "WEB",
-          "X-ClientLocalIP": "CLIENT_LOCAL_IP",
-          "X-ClientPublicIP": "CLIENT_PUBLIC_IP",
-          "X-MACAddress": "MAC_ADDRESS",
-          "X-PrivateKey": "API_KEY",
-        },
-        data: data,
-      };
-      const res = await axios(config);
-      console.log("😎😋", res.data);
-      return NextResponse.json({
-        res: res.data,
-        msg: "😎😋",
-      });
+    if (payload?.type === 1) {
     } else {
       const smart_api = new SmartAPI(payload);
       res = await smart_api.generateSession(
@@ -56,7 +28,7 @@ export const POST = async (req, res) => {
     });
   } catch (error) {
     return NextResponse.json({
-      error: error.message,
+      error,
     });
   }
 };
