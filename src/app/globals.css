@@ -40,3 +40,8 @@ a {
     color-scheme: dark;
   }
 }
+.homepage button,
+.instrument button {
+  padding: 5px;
+  margin: 5px;
+}
