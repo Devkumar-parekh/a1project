@@ -137,6 +137,7 @@ export default function Home() {
                 setToken({});
                 setFormdata({});
                 setLogindata({});
+                localStorage.setItem("secure", false);
               }}
             >
               Log out
