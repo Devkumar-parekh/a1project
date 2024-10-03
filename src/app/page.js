@@ -24,6 +24,12 @@ const InputText = (props) => {
 };
 
 export default function Home() {
+  const [loadings, setLoadings] = useState({});
+
+  const handleLoadings = (key, value) => {
+    setLoadings((prev) => ({ ...prev, [key]: value }));
+  };
+
   const router = useRouter();
   const [formdata, setFormdata] = useState({
     uid: "",
@@ -70,6 +76,7 @@ export default function Home() {
                 rel="noopener noreferrer"
                 onClick={async (e) => {
                   e.preventDefault();
+                  handleLoadings("login", 1);
                   if (formdata?.uid === "adminid") {
                     if (formdata?.password) {
                       generateSHA256Hash(formdata?.password).then((hash) => {
@@ -90,6 +97,7 @@ export default function Home() {
                   } else {
                     alert("Invalid credentials.");
                   }
+                  handleLoadings("login", 0);
                 }}
               >
                 <Image
@@ -99,7 +107,7 @@ export default function Home() {
                   width={20}
                   height={20}
                 />
-                Login
+                {loadings?.login ? "Loading..." : "Login"}
               </button>
               <button
                 href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"

@@ -45,3 +45,17 @@ a {
   padding: 5px;
   margin: 5px;
 }
+
+.bg-blue {
+  background-color: #78bcff;
+  color: white;
+}
+.m-1 {
+  margin: 10px;
+}
+.p-1 {
+  padding: 10px;
+}
+.rounded {
+  border-radius: 5px;
+}

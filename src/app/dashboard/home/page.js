@@ -54,12 +54,14 @@ export default function Home() {
           <hr />
           <center>
             <InputText
+              text={"API Key"}
               placeholder={"API Key"}
               name={"api_key"}
               value={formdata?.api_key}
               onChange={handleFormdata}
             />
             <InputText
+              text={"Client Code"}
               placeholder={"Client Code"}
               name={"client_code"}
               value={formdata?.client_code}
@@ -67,6 +69,7 @@ export default function Home() {
             />
             <InputText
               type={"password"}
+              text={"MPin"}
               placeholder={"MPin"}
               name={"password"}
               value={formdata?.password}
@@ -74,6 +77,7 @@ export default function Home() {
             />
             <InputText
               type={"password"}
+              text={"Totp"}
               placeholder={"Totp"}
               name={"totp"}
               value={formdata?.totp}
@@ -151,6 +155,7 @@ export default function Home() {
         {token?.jwtToken && (
           <>
             <InputText
+              text={"Instrument..."}
               placeholder={"Instrument..."}
               name={"instrument"}
               value={formdata?.instrument}
@@ -165,13 +170,15 @@ export default function Home() {
                 setData([]);
                 e.preventDefault();
                 console.log("Searching", formdata?.instrument);
-                let temp = instruments?.instruments?.filter((item) =>
-                  item?.name
-                    ?.toLowerCase()
-                    ?.includes(formdata?.instrument.toLowerCase())
-                );
-                // console.log("test");
-                setData(temp);
+                if (formdata?.instrument) {
+                  let temp = instruments?.instruments?.filter((item) =>
+                    item?.name
+                      ?.toLowerCase()
+                      ?.includes(formdata?.instrument.toLowerCase())
+                  );
+                  // console.log("test");
+                  setData(temp);
+                }
               }}
             >
               Search
@@ -206,6 +213,16 @@ const Instrument = (props) => {
   useEffect(() => {
     setltp([]);
   }, [index]);
+  const initForm = {
+    price: "0",
+    quantity: "0",
+  };
+  const [formdata, setFormdata] = useState(initForm);
+  const handleFormdata = (e) => {
+    const { name, value } = e.target;
+    setFormdata((prev) => ({ ...prev, [name]: value }));
+  };
+  const [buyOrSell, setBuyOrSell] = useState(false);
 
   return (
     <div
@@ -237,7 +254,7 @@ const Instrument = (props) => {
         </div>
         <div>
           {/* {props?.data?.token === ltp?.symboltoken && ltp?.symboltoken && ( */}
-          <button
+          <Button
             onClick={async () => {
               const templtp = await getLTP({
                 api_key: api_key,
@@ -253,38 +270,150 @@ const Instrument = (props) => {
             }}
           >
             LTP
-          </button>
+          </Button>
           {/* )} */}
           {props?.data?.token === ltp?.symboltoken && ltp?.symboltoken && (
-            <button
-              onClick={async () => {
-                const data = {
-                  variety: "NORMAL",
-                  transactiontype: "BUY",
-                  ordertype: "MARKET",
-                  producttype: "INTRADAY",
-                  duration: "DAY",
-                  price: "1",
-                  quantity: "1",
-                  squareoff: "0",
-                  stoploss: "0",
-                  tradingsymbol: ltp?.tradingsymbol,
-                  symboltoken: ltp?.symboltoken || "",
-                  exchange: ltp?.exchange || "",
-                };
-                const temp = await placeorder({
-                  api_key: api_key,
-                  jwt: token?.jwtToken,
-                  data: data,
-                });
-                console.log(data, "data❤❤💛💙🖤", temp, "buy result");
-              }}
-            >
-              Buy
-            </button>
+            <>
+              <Button
+                onClick={async () => {
+                  setBuyOrSell((prev) => {
+                    setFormdata(initForm);
+                    return !prev;
+                  });
+                }}
+              >
+                Buy/Sell
+              </Button>
+              {buyOrSell && (
+                <div className="bg-blue m-1 p-1 rounded">
+                  <Dropdown
+                    data={[
+                      { value: "NORMAL", label: "Normal Order (Regular)" },
+                      { value: "STOPLOSS", label: "Stop loss order" },
+                      { value: "AMO", label: "After Market Order" },
+                      { value: "ROBO", label: "ROBO (Bracket Order)" },
+                    ]}
+                    onchange={handleFormdata}
+                    name={"variety"}
+                    text={"Variety"}
+                  />
+                  <Dropdown
+                    data={[
+                      { value: "BUY", label: "Buy" },
+                      { value: "SELL", label: "Sell" },
+                    ]}
+                    onchange={handleFormdata}
+                    name={"transactiontype"}
+                    text={"Transaction Type"}
+                  />
+                  <Dropdown
+                    data={[
+                      { value: "MARKET", label: "Market Order(MKT)" },
+                      { value: "LIMIT", label: "Limit Order(L)" },
+                      {
+                        value: "STOPLOSS_LIMIT",
+                        label: "Stop Loss Limit Order(SL)",
+                      },
+                      {
+                        value: "STOPLOSS_MARKET",
+                        label: "Stop Loss Market Order(SL-M)",
+                      },
+                    ]}
+                    onchange={handleFormdata}
+                    name={"ordertype"}
+                    text={"Order Type"}
+                  />
+                  <Dropdown
+                    data={[
+                      {
+                        value: "DELIVERY",
+                        label: "Cash & Carry for equity (CNC)",
+                      },
+                      {
+                        value: "CARRYFORWARD",
+                        label: "Normal for futures and options (NRML)",
+                      },
+                      {
+                        value: "MARGIN",
+                        label: "Margin Delivery",
+                      },
+                      {
+                        value: "INTRADAY",
+                        label: "Margin Intraday Squareoff (MIS)",
+                      },
+                      {
+                        value: "BO",
+                        label: "Bracket Order (Only for ROBO)",
+                      },
+                    ]}
+                    onchange={handleFormdata}
+                    name={"producttype"}
+                    text={"Product Type"}
+                  />
+
+                  <Dropdown
+                    data={[
+                      { value: "DAY", label: "Regular Order" },
+                      { value: "IOC", label: "Immediate or Cancel" },
+                    ]}
+                    onchange={handleFormdata}
+                    name={"duration"}
+                    text={"Duration"}
+                  />
+                  <InputText
+                    type="number"
+                    text={"Price"}
+                    placeholder={"Price"}
+                    name={"price"}
+                    value={formdata?.price}
+                    onChange={handleFormdata}
+                  />
+                  <InputText
+                    type="number"
+                    text={"Quantity"}
+                    placeholder={"Quantity"}
+                    name={"quantity"}
+                    value={formdata?.quantity}
+                    onChange={handleFormdata}
+                  />
+                  <Button
+                    onClick={async () => {
+                      const data = {
+                        variety: formdata?.variety || "NORMAL", //"NORMAL",
+                        transactiontype: formdata?.transactiontype || "BUY",
+                        ordertype: formdata?.ordertype || "MARKET",
+                        producttype: formdata?.producttype || "DELIVERY", //"INTRADAY",
+                        duration: formdata?.duration || "DAY",
+                        price: formdata?.price || "0", //"51",
+                        quantity: formdata?.quantity || "0", //"1",
+                        squareoff: "0",
+                        stoploss: "0",
+                        tradingsymbol: ltp?.tradingsymbol,
+                        symboltoken: ltp?.symboltoken || "",
+                        exchange: ltp?.exchange || "",
+                      };
+                      //================================================
+                      //=================DO NOT REMOVE==================
+                      //================================================
+                      const temp = await placeorder({
+                        api_key: api_key,
+                        jwt: token?.jwtToken,
+                        data: data,
+                      });
+                      console.log(data, "data❤❤💛💙🖤", temp, "buy result");
+                      //================================================
+
+                      // console.log(data, "data❤❤💛💙🖤");
+                    }}
+                  >
+                    Buy
+                  </Button>
+                </div>
+              )}
+            </>
           )}
 
-          {props?.data?.token === ltp?.symboltoken && ltp?.symboltoken && (
+          {/* {props?.data?.token === ltp?.symboltoken && ltp?.symboltoken && (
             <button
               onClick={async () => {
                 const temp = await cancelOrder({
@@ -300,7 +429,7 @@ const Instrument = (props) => {
             >
               Cancel Order
             </button>
-          )}
+          )} */}
         </div>
       </div>
     </div>
@@ -309,20 +438,53 @@ const Instrument = (props) => {
 
 const InputText = (props) => {
   return (
-    <input
-      type={props?.type || "text"}
-      name={props?.name}
-      value={props?.value || ""}
-      onChange={props.onChange}
-      style={{
-        borderRadius: "5px",
-        margin: "3px",
-        padding: "5px",
-        fontSize: "16px",
-        width: "min(300px,100%)",
-      }}
-      placeholder={props.placeholder}
-    />
+    <div className="m-1">
+      <div style={{ fontWeight: "bold" }}>{props.text}</div>
+      <input
+        type={props?.type || "text"}
+        name={props?.name}
+        value={props?.value || ""}
+        onChange={props.onChange}
+        style={{
+          borderRadius: "5px",
+          margin: "3px",
+          padding: "5px",
+          fontSize: "16px",
+          width: "min(300px,100%)",
+        }}
+        placeholder={props.placeholder}
+      />
+    </div>
+  );
+};
+
+const Dropdown = (props) => {
+  return (
+    <div className="m-1">
+      <div style={{ fontWeight: "bold" }}>{props.text}</div>
+      <select name={props.name} onChange={props.onchange}>
+        {props?.data?.length ? (
+          props?.data?.map((item, key) => {
+            if (item?.value && item?.label)
+              return (
+                <option key={key} value={item?.value}>
+                  {item?.label}
+                </option>
+              );
+          })
+        ) : (
+          <option>No data Found</option>
+        )}
+      </select>
+    </div>
+  );
+};
+
+const Button = (props) => {
+  return (
+    <button className="m-1" onClick={props.onClick}>
+      Buy
+    </button>
   );
 };
 
