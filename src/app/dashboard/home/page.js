@@ -483,7 +483,7 @@ const Dropdown = (props) => {
 const Button = (props) => {
   return (
     <button className="m-1" onClick={props.onClick}>
-      Buy
+      {props?.children}
     </button>
   );
 };
