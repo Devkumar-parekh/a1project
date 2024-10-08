@@ -49,43 +49,45 @@ export default function Home() {
       <div className={styles.page} style={{ flex: 1 }}>
         <main className={styles.main} style={{ maxWidth: "400px" }}>
           <h1 style={{ textAlign: "center" }}>
-            <code>A1PROJECT</code>
+            {/* <code>A1PROJECT</code> */}
+            <code>A1Trades</code>
           </h1>
           <hr />
-          <center>
-            <InputText
-              text={"API Key"}
-              placeholder={"API Key"}
-              name={"api_key"}
-              value={formdata?.api_key}
-              onChange={handleFormdata}
-            />
-            <InputText
-              text={"Client Code"}
-              placeholder={"Client Code"}
-              name={"client_code"}
-              value={formdata?.client_code}
-              onChange={handleFormdata}
-            />
-            <InputText
-              type={"password"}
-              text={"MPin"}
-              placeholder={"MPin"}
-              name={"password"}
-              value={formdata?.password}
-              onChange={handleFormdata}
-            />
-            <InputText
-              type={"password"}
-              text={"Totp"}
-              placeholder={"Totp"}
-              name={"totp"}
-              value={formdata?.totp}
-              onChange={handleFormdata}
-            />
-          </center>
+          {!logindata?.profile?.data?.name && (
+            <center>
+              <InputText
+                text={"API Key"}
+                placeholder={"API Key"}
+                name={"api_key"}
+                value={formdata?.api_key}
+                onChange={handleFormdata}
+              />
+              <InputText
+                text={"Client Code"}
+                placeholder={"Client Code"}
+                name={"client_code"}
+                value={formdata?.client_code}
+                onChange={handleFormdata}
+              />
+              <InputText
+                type={"password"}
+                text={"MPin"}
+                placeholder={"MPin"}
+                name={"password"}
+                value={formdata?.password}
+                onChange={handleFormdata}
+              />
+              <InputText
+                type={"password"}
+                text={"Totp"}
+                placeholder={"Totp"}
+                name={"totp"}
+                value={formdata?.totp}
+                onChange={handleFormdata}
+              />
+            </center>
+          )}
 
-          <hr />
           <div className={styles.ctas}>
             {logindata?.profile?.data?.name
               ? `${logindata?.profile?.data?.name}`
@@ -187,18 +189,19 @@ export default function Home() {
         )}
         <div>
           {useMemo(() => {
-            return data?.map((dataitem, index) => {
-              return (
-                <div key={index}>
-                  <Instrument
-                    data={dataitem}
-                    key={index}
-                    api_key={formdata?.api_key}
-                    token={token}
-                  />
-                </div>
-              );
-            });
+            if (token?.jwtToken)
+              return data?.map((dataitem, index) => {
+                return (
+                  <div key={index}>
+                    <Instrument
+                      data={dataitem}
+                      key={index}
+                      api_key={formdata?.api_key}
+                      token={token}
+                    />
+                  </div>
+                );
+              });
           }, [data])}
         </div>
       </div>
@@ -223,6 +226,11 @@ const Instrument = (props) => {
     setFormdata((prev) => ({ ...prev, [name]: value }));
   };
   const [buyOrSell, setBuyOrSell] = useState(false);
+
+  const [loader, setLoader] = useState({});
+  const handleLoader = (key, value) => {
+    setLoader((prev) => ({ ...prev, [key]: value }));
+  };
 
   return (
     <div
@@ -395,18 +403,27 @@ const Instrument = (props) => {
                       //================================================
                       //=================DO NOT REMOVE==================
                       //================================================
-                      const temp = await placeorder({
-                        api_key: api_key,
-                        jwt: token?.jwtToken,
-                        data: data,
-                      });
-                      console.log(data, "data❤❤💛💙🖤", temp, "buy result");
+                      handleLoader("order", 1);
+                      if (
+                        Number(formdata?.price) &&
+                        Number(formdata?.quantity)
+                      ) {
+                        const temp = await placeorder({
+                          api_key: api_key,
+                          jwt: token?.jwtToken,
+                          data: data,
+                        });
+                        console.log(data, "data❤❤💛💙🖤", temp, "buy result");
+                      } else {
+                        alert("Please enter valid price and quantity");
+                      }
                       //================================================
-
+                      handleLoader("order", 0);
+                      setFormdata(initForm);
                       // console.log(data, "data❤❤💛💙🖤");
                     }}
                   >
-                    Buy
+                    {loader?.order ? "Loading" : "Submit"}
                   </Button>
                 </div>
               )}
@@ -482,7 +499,11 @@ const Dropdown = (props) => {
 
 const Button = (props) => {
   return (
-    <button className="m-1" onClick={props.onClick}>
+    <button
+      className="m-1"
+      style={{ cursor: "pointer" }}
+      onClick={props.onClick}
+    >
       {props?.children}
     </button>
   );
@@ -546,6 +567,7 @@ const placeorder = async (payload) => {
 
   const result = await axios(config);
   console.log(result);
+  alert("Success!");
   return result;
 };
 
