@@ -6,7 +6,7 @@ import { useState, useEffect, memo, useMemo } from "react";
 import axios from "axios";
 import { TOTP } from "totp-generator";
 
-// import instruments from "../../assets/instruments.json";
+import instruments from "../../assets/instruments.json";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
@@ -179,16 +179,16 @@ export default function Home() {
                 e.preventDefault();
                 console.log("Searching", formdata?.instrument);
                 if (formdata?.instrument) {
-                  // let temp = instruments?.instruments?.filter((item) =>
-                  //   item?.name
-                  //     ?.toLowerCase()
-                  //     ?.includes(formdata?.instrument.toLowerCase())
-                  // );
+                  let temp = instruments?.instruments?.filter((item) =>
+                    item?.name
+                      ?.toLowerCase()
+                      ?.includes(formdata?.instrument.toLowerCase())
+                  );
                   // console.log("test");
-                  let temp = [];
-                  temp = await axios.post(`/api/instruments`, {
-                    name: formdata?.instrument,
-                  });
+                  // let temp = [];
+                  // temp = await axios.post(`/api/instruments`, {
+                  //   name: formdata?.instrument,
+                  // });
                   setData(temp?.data?.data);
                   console.log(temp, "temp");
                 }
