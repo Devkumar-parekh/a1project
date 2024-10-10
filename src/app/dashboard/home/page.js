@@ -189,7 +189,8 @@ export default function Home() {
                   // temp = await axios.post(`/api/instruments`, {
                   //   name: formdata?.instrument,
                   // });
-                  setData(temp?.data?.data);
+                  setData(temp);
+                  // setData(temp?.data?.data);
                   console.log(temp, "temp");
                 }
               }}
