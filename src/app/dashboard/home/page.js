@@ -5,15 +5,15 @@ import styles from "./page.module.css";
 import { useState, useEffect, memo, useMemo } from "react";
 import axios from "axios";
 import { TOTP } from "totp-generator";
-// import { instruments } from "../../assets/instruments";
-import instruments from "../../assets/instruments.json";
+
+// import instruments from "../../assets/instruments.json";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
   useEffect(() => {
     let localdata = localStorage.getItem("secure");
-    if (!localdata) {
+    if (!localdata || localdata === "false") {
       router.push("/");
     }
   }, []);
@@ -44,7 +44,7 @@ export default function Home() {
   return (
     <div
       className="homepage"
-      style={{ display: "flex", alignItems: "flex-start" }}
+      style={{ display: "flex", alignItems: "flex-start", flexWrap: "wrap" }}
     >
       <div className={styles.page} style={{ flex: 1 }}>
         <main className={styles.main} style={{ maxWidth: "400px" }}>
@@ -144,6 +144,7 @@ export default function Home() {
                 setFormdata({});
                 setLogindata({});
                 localStorage.setItem("secure", false);
+                router.push("/");
               }}
             >
               Log out
@@ -162,10 +163,15 @@ export default function Home() {
               name={"instrument"}
               value={formdata?.instrument}
               onChange={handleFormdata}
+              className={"d-inline"}
             />
             <button
               className={styles.primary}
-              style={{ padding: "5px", borderRadius: "10px" }}
+              style={{
+                padding: "5px",
+                borderRadius: "10px",
+                cursor: "pointer",
+              }}
               href=""
               rel="noopener noreferrer"
               onClick={async (e) => {
@@ -173,13 +179,18 @@ export default function Home() {
                 e.preventDefault();
                 console.log("Searching", formdata?.instrument);
                 if (formdata?.instrument) {
-                  let temp = instruments?.instruments?.filter((item) =>
-                    item?.name
-                      ?.toLowerCase()
-                      ?.includes(formdata?.instrument.toLowerCase())
-                  );
+                  // let temp = instruments?.instruments?.filter((item) =>
+                  //   item?.name
+                  //     ?.toLowerCase()
+                  //     ?.includes(formdata?.instrument.toLowerCase())
+                  // );
                   // console.log("test");
-                  setData(temp);
+                  let temp = [];
+                  temp = await axios.post(`/api/instruments`, {
+                    name: formdata?.instrument,
+                  });
+                  setData(temp?.data?.data);
+                  console.log(temp, "temp");
                 }
               }}
             >
@@ -187,7 +198,7 @@ export default function Home() {
             </button>
           </>
         )}
-        <div>
+        <div style={{ maxHeight: "calc(100vh - 150px)", overflow: "auto" }}>
           {useMemo(() => {
             if (token?.jwtToken)
               return data?.map((dataitem, index) => {
@@ -196,6 +207,7 @@ export default function Home() {
                     <Instrument
                       data={dataitem}
                       key={index}
+                      index={index}
                       api_key={formdata?.api_key}
                       token={token}
                     />
@@ -241,9 +253,11 @@ const Instrument = (props) => {
         border: "2px solid gray",
         borderRadius: "10px",
         margin: "10px 0",
+        background: "#64646430",
       }}
     >
       <div className="" style={{ display: "flex", gap: "10px" }}>
+        {props.index + 1}
         <div>
           <div>name: {name}</div>
           <div>symbol: {symbol}</div>
@@ -455,7 +469,7 @@ const Instrument = (props) => {
 
 const InputText = (props) => {
   return (
-    <div className="m-1">
+    <div className={`m-1 ${props?.className || ""}`}>
       <div style={{ fontWeight: "bold" }}>{props.text}</div>
       <input
         type={props?.type || "text"}

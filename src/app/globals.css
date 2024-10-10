@@ -59,3 +59,9 @@ a {
 .rounded {
   border-radius: 5px;
 }
+.d-block {
+  display: block;
+}
+.d-inline {
+  display: inline;
+}

@@ -11,6 +11,7 @@
   "dependencies": {
     "axios": "^1.7.7",
     "customdatatabledev": "^1.0.7",
+    "mongoose": "^8.7.1",
     "next": "14.2.13",
     "react": "^18",
     "react-dom": "^18",
@@ -18,6 +19,8 @@
     "totp-generator": "^1.0.0"
   },
   "devDependencies": {
+    "@types/node": "22.7.5",
+    "@types/react": "18.3.11",
     "eslint": "^8",
     "eslint-config-next": "14.2.13"
   }

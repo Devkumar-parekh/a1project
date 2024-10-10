@@ -3,6 +3,7 @@ import Image from "next/image";
 import styles from "./page.module.css";
 import { useState, useEffect, memo } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 const InputText = (props) => {
   return (
@@ -42,6 +43,28 @@ export default function Home() {
       return { ...prev, [key]: value };
     });
   };
+
+  const handleLogin = () => {
+    handleLoadings("login", 1);
+    if (formdata?.uid === "adminid") {
+      if (formdata?.password) {
+        generateSHA256Hash(formdata?.password).then((hash) => {
+          if (hash === process.env.admpswd) {
+            router.push("/dashboard/home");
+            localStorage.setItem("secure", true);
+          } else {
+            alert("Invalid credentials...");
+          }
+        });
+      } else {
+        alert("Invalid credentials..");
+      }
+    } else {
+      alert("Invalid credentials.");
+    }
+    handleLoadings("login", 0);
+  };
+
   return (
     <>
       <div style={{ display: "flex", alignItems: "flex-start" }}>
@@ -56,13 +79,13 @@ export default function Home() {
             <hr />
             <center>
               <InputText
-                placeholder={"uid"}
+                placeholder={"User Id"}
                 name={"uid"}
                 value={formdata?.uid}
                 onChange={handleFormdata}
               />
               <InputText
-                placeholder={"password"}
+                placeholder={"Password"}
                 name={"password"}
                 value={formdata?.password}
                 onChange={handleFormdata}
@@ -76,28 +99,7 @@ export default function Home() {
                 rel="noopener noreferrer"
                 onClick={async (e) => {
                   e.preventDefault();
-                  handleLoadings("login", 1);
-                  if (formdata?.uid === "adminid") {
-                    if (formdata?.password) {
-                      generateSHA256Hash(formdata?.password).then((hash) => {
-                        console.log("SHA-256 Hash:", hash);
-                        if (
-                          hash ===
-                          "ebcaa2bc57ae3e81cf2065edd94e3c87d0997370c4b7fdb4e306d83efacf3c3d"
-                        ) {
-                          router.push("/dashboard/home");
-                          localStorage.setItem("secure", true);
-                        } else {
-                          alert("Invalid credentials...");
-                        }
-                      });
-                    } else {
-                      alert("Invalid credentials..");
-                    }
-                  } else {
-                    alert("Invalid credentials.");
-                  }
-                  handleLoadings("login", 0);
+                  handleLogin();
                 }}
               >
                 <Image
